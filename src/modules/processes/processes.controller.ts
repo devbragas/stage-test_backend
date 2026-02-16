@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -94,7 +95,7 @@ export class ProcessesController {
     description: 'Area not found.',
   })
   @Get('area/:areaId')
-  findByArea(@Param('areaId') areaId: string) {
+  findByArea(@Param('areaId', ParseUUIDPipe) areaId: string) {
     return this.processesService.findByArea(areaId);
   }
 
@@ -113,7 +114,7 @@ export class ProcessesController {
     description: 'Area not found.',
   })
   @Get('area/:areaId/tree')
-  findByAreaTree(@Param('areaId') areaId: string) {
+  findByAreaTree(@Param('areaId', ParseUUIDPipe) areaId: string) {
     return this.processesService.findByAreaTree(areaId);
   }
 
@@ -128,7 +129,7 @@ export class ProcessesController {
     description: 'Process not found.',
   })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.processesService.findOne(id);
   }
 
@@ -147,7 +148,10 @@ export class ProcessesController {
     description: 'Process not found.',
   })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProcessDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateProcessDto,
+  ) {
     return this.processesService.update(id, dto);
   }
 
@@ -165,7 +169,7 @@ export class ProcessesController {
     description: 'Cannot delete process with children. Delete children first.',
   })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.processesService.remove(id);
   }
 }

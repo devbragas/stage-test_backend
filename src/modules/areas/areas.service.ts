@@ -18,7 +18,7 @@ export class AreasService {
   async findOne(id: string) {
     const area = await this.prisma.area.findUnique({ where: { id } });
 
-    if (!area) throw new NotFoundException('Área não encontrada');
+    if (!area) throw new NotFoundException('Area not found.');
 
     return area;
   }

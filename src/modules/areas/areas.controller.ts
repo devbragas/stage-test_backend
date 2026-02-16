@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -12,7 +13,6 @@ import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
 import { AreaResponseDto } from './dto/area-response.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-
 @Controller('areas')
 export class AreasController {
   constructor(private readonly areasService: AreasService) {}
@@ -58,11 +58,15 @@ export class AreasController {
     type: AreaResponseDto,
   })
   @ApiResponse({
+    status: 400,
+    description: 'Invalid UUID type',
+  })
+  @ApiResponse({
     status: 404,
     description: 'Area not found.',
   })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.areasService.findOne(id);
   }
 
@@ -83,7 +87,7 @@ export class AreasController {
     description: 'Area not found.',
   })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateAreaDto) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateAreaDto) {
     return this.areasService.update(id, dto);
   }
 
@@ -99,7 +103,7 @@ export class AreasController {
     description: 'Area not found.',
   })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.areasService.remove(id);
   }
 }
