@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
@@ -11,4 +6,55 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Area {
+  id        String   @id @default(uuid()) @db.Uuid
+  nome      String   @db.VarChar(100)
+  descricao String?  @db.Text
+  cor       String?  @db.VarChar(7)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  processes Process[]
+
+  @@map("areas")
+}
+
+model Process {
+  id          String   @id @default(uuid()) @db.Uuid
+  nome        String   @db.VarChar(150)
+  descricao   String?  @db.Text
+
+  areaId      String   @db.Uuid
+  area        Area     @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  parentId    String?  @db.Uuid
+  parent      Process? @relation("ProcessHierarchy", fields: [parentId], references: [id])
+  children    Process[] @relation("ProcessHierarchy")
+
+  tipo        ProcessType
+  status      ProcessStatus @default(ACTIVE)
+
+  responsaveis String[] 
+  ferramentas  String[]
+  documentacoes String[]
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([areaId])
+  @@index([parentId])
+  @@map("processes")
+}
+
+enum ProcessType {
+  MANUAL
+  SISTEMICO
+}
+
+enum ProcessStatus {
+  ACTIVE
+  INACTIVE
 }
