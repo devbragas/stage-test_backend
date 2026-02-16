@@ -5,7 +5,9 @@ import {
 } from '@nestjs/common';
 import { CreateProcessDto } from './dto/create-process.dto';
 import { UpdateProcessDto } from './dto/update-process.dto';
+import { ProcessTreeDto } from './dto/process-tree.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Process } from '@prisma/client';
 
 @Injectable()
 export class ProcessesService {
@@ -24,6 +26,12 @@ export class ProcessesService {
       });
 
       if (!parent) throw new NotFoundException('Parent process not found');
+
+      if (parent.areaId !== dto.areaId) {
+        throw new ConflictException(
+          'Parent process must belong to the same area.',
+        );
+      }
     }
 
     return this.prisma.process.create({
@@ -61,8 +69,8 @@ export class ProcessesService {
     return this.buildProcessTree(processes);
   }
 
-  private buildProcessTree(processes: any[]): any[] {
-    const processMap = new Map<string, any>();
+  private buildProcessTree(processes: Process[]): ProcessTreeDto[] {
+    const processMap = new Map<string, ProcessTreeDto>();
 
     processes.forEach((process) => {
       processMap.set(process.id, {
@@ -78,13 +86,13 @@ export class ProcessesService {
       });
     });
 
-    const rootProcesses: any[] = [];
+    const rootProcesses: ProcessTreeDto[] = [];
 
     processes.forEach((process) => {
-      const node = processMap.get(process.id);
+      const node = processMap.get(process.id)!;
 
       if (process.parentId && processMap.has(process.parentId)) {
-        processMap.get(process.parentId).children.push(node);
+        processMap.get(process.parentId)!.children.push(node);
       } else {
         rootProcesses.push(node);
       }
@@ -102,7 +110,11 @@ export class ProcessesService {
   }
 
   async update(id: string, dto: UpdateProcessDto) {
-    await this.findOne(id);
+    const currentProcess = await this.findOne(id);
+
+    if (dto.parentId === id) {
+      throw new ConflictException('A process cannot be its own parent.');
+    }
 
     if (dto.areaId) {
       const area = await this.prisma.area.findUnique({
@@ -110,6 +122,18 @@ export class ProcessesService {
       });
 
       if (!area) throw new NotFoundException('Area not found');
+
+      if (dto.areaId !== currentProcess.areaId) {
+        const childrenCount = await this.prisma.process.count({
+          where: { parentId: id },
+        });
+
+        if (childrenCount > 0) {
+          throw new ConflictException(
+            'Cannot change area of a process that has child processes.',
+          );
+        }
+      }
     }
 
     if (dto.parentId) {
@@ -118,6 +142,13 @@ export class ProcessesService {
       });
 
       if (!parent) throw new NotFoundException('Parent process not found');
+
+      const targetAreaId = dto.areaId || currentProcess.areaId;
+      if (parent.areaId !== targetAreaId) {
+        throw new ConflictException(
+          'Parent process must belong to the same area.',
+        );
+      }
     }
 
     return this.prisma.process.update({

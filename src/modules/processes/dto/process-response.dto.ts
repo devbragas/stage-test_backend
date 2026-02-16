@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ProcessType, ProcessStatus } from './create-process.dto';
+import { ProcessType, ProcessStatus } from '@prisma/client';
 
 export class ProcessResponseDto {
   @ApiProperty({
@@ -17,8 +17,9 @@ export class ProcessResponseDto {
   @ApiPropertyOptional({
     description: 'Description of the process',
     example: 'Handles the entire recruitment lifecycle',
+    nullable: true,
   })
-  description?: string;
+  description: string | null;
 
   @ApiProperty({
     description: 'Identifier of the associated area',
@@ -29,20 +30,21 @@ export class ProcessResponseDto {
   @ApiPropertyOptional({
     description: 'Parent process ID (for hierarchy)',
     example: '550e8400-e29b-41d4-a716-446655440000',
+    nullable: true,
   })
-  parentId?: string;
+  parentId: string | null;
 
   @ApiProperty({
     enum: ProcessType,
     description: 'Type of the process',
-    example: ProcessType.MANUAL,
+    example: 'MANUAL',
   })
   type: ProcessType;
 
   @ApiProperty({
     enum: ProcessStatus,
     description: 'Status of the process',
-    example: ProcessStatus.ACTIVE,
+    example: 'ACTIVE',
   })
   status: ProcessStatus;
 

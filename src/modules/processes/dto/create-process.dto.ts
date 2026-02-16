@@ -7,16 +7,7 @@ import {
   IsEnum,
   IsArray,
 } from 'class-validator';
-
-export enum ProcessType {
-  MANUAL = 'MANUAL',
-  SISTEMIC = 'SISTEMIC',
-}
-
-export enum ProcessStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-}
+import { ProcessType } from '@prisma/client';
 
 export class CreateProcessDto {
   @ApiProperty({ example: 'Recruitment Flow' })
@@ -26,7 +17,7 @@ export class CreateProcessDto {
 
   @ApiProperty({
     enum: ProcessType,
-    example: ProcessType.MANUAL,
+    example: 'MANUAL',
     description: 'Type of the process (MANUAL or SISTEMIC)',
   })
   @IsEnum(ProcessType)

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ProcessType, ProcessStatus } from './create-process.dto';
+import { ProcessType, ProcessStatus } from '@prisma/client';
 
 export class ProcessTreeDto {
   @ApiProperty({
@@ -17,8 +17,9 @@ export class ProcessTreeDto {
   @ApiPropertyOptional({
     description: 'Description of the process',
     example: 'Processo de recrutamento Stage Consulting',
+    nullable: true,
   })
-  description?: string;
+  description: string | null;
 
   @ApiProperty({
     enum: ProcessType,
