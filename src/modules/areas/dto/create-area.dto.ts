@@ -9,17 +9,17 @@ import {
 export class CreateAreaDto {
   @IsString()
   @MaxLength(100)
-  nome: string;
+  name: string;
 
   @IsOptional()
   @IsString()
-  descricao?: string;
+  description?: string;
 
   @IsOptional()
   @IsHexColor()
-  cor?: string;
+  color?: string;
 
   @IsOptional()
   @IsBoolean()
-  ativo?: boolean;
+  active?: boolean;
 }

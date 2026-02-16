@@ -10,10 +10,10 @@ datasource db {
 
 model Area {
   id        String   @id @default(uuid()) @db.Uuid
-  nome      String   @db.VarChar(100)
-  descricao String?  @db.Text
-  cor       String?  @db.VarChar(7)
-  ativo     Boolean  @default(true)
+  name      String   @db.VarChar(100)
+  description String?  @db.Text
+  color       String?  @db.VarChar(7)
+  active     Boolean  @default(true)
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -24,8 +24,8 @@ model Area {
 
 model Process {
   id          String   @id @default(uuid()) @db.Uuid
-  nome        String   @db.VarChar(150)
-  descricao   String?  @db.Text
+  name        String   @db.VarChar(150)
+  description   String?  @db.Text
 
   areaId      String   @db.Uuid
   area        Area     @relation(fields: [areaId], references: [id], onDelete: Cascade)
@@ -34,12 +34,12 @@ model Process {
   parent      Process? @relation("ProcessHierarchy", fields: [parentId], references: [id])
   children    Process[] @relation("ProcessHierarchy")
 
-  tipo        ProcessType
+  type        ProcessType
   status      ProcessStatus @default(ACTIVE)
 
-  responsaveis String[] 
-  ferramentas  String[]
-  documentacoes String[]
+  responsibles String[] 
+  tools  String[]
+  documentations String[]
 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -51,7 +51,7 @@ model Process {
 
 enum ProcessType {
   MANUAL
-  SISTEMICO
+  SISTEMIC
 }
 
 enum ProcessStatus {
