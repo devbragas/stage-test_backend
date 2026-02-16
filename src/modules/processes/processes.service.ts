@@ -42,6 +42,18 @@ export class ProcessesService {
 
     if (!area) throw new NotFoundException('Area not found');
 
+    return this.prisma.process.findMany({
+      where: { areaId },
+    });
+  }
+
+  async findByAreaTree(areaId: string) {
+    const area = await this.prisma.area.findUnique({
+      where: { id: areaId },
+    });
+
+    if (!area) throw new NotFoundException('Area not found');
+
     const processes = await this.prisma.process.findMany({
       where: { areaId },
     });
@@ -52,7 +64,6 @@ export class ProcessesService {
   private buildProcessTree(processes: any[]): any[] {
     const processMap = new Map<string, any>();
 
-    // Criar mapa de todos os processos
     processes.forEach((process) => {
       processMap.set(process.id, {
         id: process.id,
@@ -69,15 +80,12 @@ export class ProcessesService {
 
     const rootProcesses: any[] = [];
 
-    // Construir a árvore
     processes.forEach((process) => {
       const node = processMap.get(process.id);
 
       if (process.parentId && processMap.has(process.parentId)) {
-        // Se tem pai, adiciona como filho
         processMap.get(process.parentId).children.push(node);
       } else {
-        // Se não tem pai, é um processo raiz
         rootProcesses.push(node);
       }
     });
@@ -121,7 +129,6 @@ export class ProcessesService {
   async remove(id: string) {
     await this.findOne(id);
 
-    // Verificar se o processo tem filhos
     const childrenCount = await this.prisma.process.count({
       where: { parentId: id },
     });
