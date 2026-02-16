@@ -1,0 +1,60 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Area {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  description String?  @db.Text
+  color       String?  @db.VarChar(7)
+  active     Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  processes Process[]
+
+  @@map("areas")
+}
+
+model Process {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(150)
+  description   String?  @db.Text
+
+  areaId      String   @db.Uuid
+  area        Area     @relation(fields: [areaId], references: [id], onDelete: Cascade)
+
+  parentId    String?  @db.Uuid
+  parent      Process? @relation("ProcessHierarchy", fields: [parentId], references: [id])
+  children    Process[] @relation("ProcessHierarchy")
+
+  type        ProcessType
+  status      ProcessStatus @default(ACTIVE)
+
+  responsibles String[] 
+  tools  String[]
+  documentations String[]
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([areaId])
+  @@index([parentId])
+  @@map("processes")
+}
+
+enum ProcessType {
+  MANUAL
+  SISTEMIC
+}
+
+enum ProcessStatus {
+  ACTIVE
+  INACTIVE
+}
