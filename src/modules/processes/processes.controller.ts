@@ -16,6 +16,7 @@ import { ProcessResponseDto } from './dto/process-response.dto';
 import { ProcessTreeDto } from './dto/process-tree.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaginationDto } from './dto/pagination.dto';
+import { ProcessStatsDto } from './dto/process-stats.dto';
 
 @Controller('processes')
 export class ProcessesController {
@@ -133,6 +134,23 @@ export class ProcessesController {
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.processesService.findOne(id);
+  }
+
+  @ApiOperation({
+    summary: 'Retrieve statistics for processes in a specific area',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Process statistics retrieved successfully.',
+    type: ProcessStatsDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Area not found.',
+  })
+  @Get('area/:areaId/stats')
+  getAreaStats(@Param('areaId', ParseUUIDPipe) areaId: string) {
+    return this.processesService.getAreaStats(areaId);
   }
 
   @ApiOperation({ summary: 'Update an existing process' })
