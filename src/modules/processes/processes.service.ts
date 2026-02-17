@@ -8,6 +8,8 @@ import { UpdateProcessDto } from './dto/update-process.dto';
 import { ProcessTreeDto } from './dto/process-tree.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Process } from '@prisma/client';
+import { PaginationDto } from './dto/pagination.dto';
+import { DEFAULT_PAGE_SIZE } from './utils/constants';
 
 @Injectable()
 export class ProcessesService {
@@ -39,8 +41,11 @@ export class ProcessesService {
     });
   }
 
-  async findAll() {
-    return this.prisma.process.findMany();
+  async findAll(paginationDTO: PaginationDto) {
+    return this.prisma.process.findMany({
+      skip: paginationDTO.skip,
+      take: paginationDTO.limit ?? DEFAULT_PAGE_SIZE,
+    });
   }
 
   async findByArea(areaId: string) {

@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ProcessesService } from './processes.service';
 import { CreateProcessDto } from './dto/create-process.dto';
@@ -14,6 +15,7 @@ import { UpdateProcessDto } from './dto/update-process.dto';
 import { ProcessResponseDto } from './dto/process-response.dto';
 import { ProcessTreeDto } from './dto/process-tree.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { PaginationDto } from './dto/pagination.dto';
 
 @Controller('processes')
 export class ProcessesController {
@@ -46,8 +48,8 @@ export class ProcessesController {
     isArray: true,
   })
   @Get()
-  findAll() {
-    return this.processesService.findAll();
+  findAll(@Query() paginationDTO: PaginationDto) {
+    return this.processesService.findAll(paginationDTO);
   }
 
   @ApiOperation({
