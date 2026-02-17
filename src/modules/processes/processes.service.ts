@@ -8,6 +8,8 @@ import { UpdateProcessDto } from './dto/update-process.dto';
 import { ProcessTreeDto } from './dto/process-tree.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Process } from '@prisma/client';
+import { PaginationDto } from './dto/pagination.dto';
+import { DEFAULT_PAGE_SIZE } from './utils/constants';
 
 @Injectable()
 export class ProcessesService {
@@ -39,8 +41,11 @@ export class ProcessesService {
     });
   }
 
-  async findAll() {
-    return this.prisma.process.findMany();
+  async findAll(paginationDTO: PaginationDto) {
+    return this.prisma.process.findMany({
+      skip: paginationDTO.skip,
+      take: paginationDTO.limit ?? DEFAULT_PAGE_SIZE,
+    });
   }
 
   async findByArea(areaId: string) {
@@ -99,6 +104,66 @@ export class ProcessesService {
     });
 
     return rootProcesses;
+  }
+
+  private calculateMaxDepth(processes: any[]): number {
+    const map = new Map<string, any>();
+
+    processes.forEach((p) => {
+      map.set(p.id, { ...p, children: [] });
+    });
+
+    const roots: any[] = [];
+
+    processes.forEach((p) => {
+      const node = map.get(p.id);
+      if (p.parentId && map.has(p.parentId)) {
+        map.get(p.parentId).children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+
+    const getDepth = (node: any): number => {
+      if (!node.children.length) return 1;
+      return 1 + Math.max(...node.children.map(getDepth));
+    };
+
+    return roots.length ? Math.max(...roots.map(getDepth)) : 0;
+  }
+
+  async getAreaStats(areaId: string) {
+    const area = await this.prisma.area.findUnique({
+      where: { id: areaId },
+    });
+
+    if (!area) throw new NotFoundException('Area not found');
+
+    const processes = await this.prisma.process.findMany({
+      where: { areaId },
+    });
+
+    const totalProcesses = processes.length;
+
+    const activeProcesses = processes.filter(
+      (p) => p.status === 'ACTIVE',
+    ).length;
+
+    const manualProcesses = processes.filter((p) => p.type === 'MANUAL').length;
+
+    const automatedProcesses = processes.filter(
+      (p) => p.type === 'SISTEMIC',
+    ).length;
+
+    const maxDepth = this.calculateMaxDepth(processes);
+
+    return {
+      totalProcesses,
+      activeProcesses,
+      manualProcesses,
+      automatedProcesses,
+      maxDepth,
+    };
   }
 
   async findOne(id: string) {

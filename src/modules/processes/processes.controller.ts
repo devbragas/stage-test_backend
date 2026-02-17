@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ProcessesService } from './processes.service';
 import { CreateProcessDto } from './dto/create-process.dto';
@@ -14,6 +15,8 @@ import { UpdateProcessDto } from './dto/update-process.dto';
 import { ProcessResponseDto } from './dto/process-response.dto';
 import { ProcessTreeDto } from './dto/process-tree.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { PaginationDto } from './dto/pagination.dto';
+import { ProcessStatsDto } from './dto/process-stats.dto';
 
 @Controller('processes')
 export class ProcessesController {
@@ -46,8 +49,8 @@ export class ProcessesController {
     isArray: true,
   })
   @Get()
-  findAll() {
-    return this.processesService.findAll();
+  findAll(@Query() paginationDTO: PaginationDto) {
+    return this.processesService.findAll(paginationDTO);
   }
 
   @ApiOperation({
@@ -131,6 +134,23 @@ export class ProcessesController {
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.processesService.findOne(id);
+  }
+
+  @ApiOperation({
+    summary: 'Retrieve statistics for processes in a specific area',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Process statistics retrieved successfully.',
+    type: ProcessStatsDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Area not found.',
+  })
+  @Get('area/:areaId/stats')
+  getAreaStats(@Param('areaId', ParseUUIDPipe) areaId: string) {
+    return this.processesService.getAreaStats(areaId);
   }
 
   @ApiOperation({ summary: 'Update an existing process' })
