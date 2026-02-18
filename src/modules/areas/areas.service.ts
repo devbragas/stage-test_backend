@@ -11,8 +11,22 @@ export class AreasService {
     return this.prisma.area.create({ data });
   }
 
-  async findAll() {
-    return this.prisma.area.findMany();
+  async findAll(search?: string) {
+    return this.prisma.area.findMany({
+      where: search
+        ? {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          }
+        : undefined,
+      include: {
+        _count: {
+          select: { processes: true },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {
