@@ -15,7 +15,7 @@ import { UpdateProcessDto } from './dto/update-process.dto';
 import { ProcessResponseDto } from './dto/process-response.dto';
 import { ProcessTreeDto } from './dto/process-tree.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { PaginationDto } from './dto/pagination.dto';
+import { QueryProcessesDto } from './dto/query-processes.dto';
 import { ProcessStatsDto } from './dto/process-stats.dto';
 
 @Controller('processes')
@@ -49,8 +49,8 @@ export class ProcessesController {
     isArray: true,
   })
   @Get()
-  findAll(@Query() paginationDTO: PaginationDto) {
-    return this.processesService.findAll(paginationDTO);
+  findAll(@Query() query: QueryProcessesDto) {
+    return this.processesService.findAll(query);
   }
 
   @ApiOperation({

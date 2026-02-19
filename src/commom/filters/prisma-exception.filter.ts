@@ -15,7 +15,6 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
     switch (exception.code) {
       case 'P2002':
-        // Unique constraint violation
         response.status(HttpStatus.CONFLICT).json({
           statusCode: HttpStatus.CONFLICT,
           message: 'Duplicate field value',
@@ -23,7 +22,6 @@ export class PrismaExceptionFilter implements ExceptionFilter {
         return;
 
       case 'P2025':
-        // Record not found
         response.status(HttpStatus.NOT_FOUND).json({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'Record not found',
@@ -31,7 +29,6 @@ export class PrismaExceptionFilter implements ExceptionFilter {
         return;
 
       case 'P2023':
-        // Invalid UUID/ID format
         response.status(HttpStatus.BAD_REQUEST).json({
           statusCode: HttpStatus.BAD_REQUEST,
           message: 'Invalid ID format',
