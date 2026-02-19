@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateAreaDto } from './dto/create-area.dto';
 import { UpdateAreaDto } from './dto/update-area.dto';
@@ -8,11 +12,36 @@ export class AreasService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateAreaDto) {
+    const existingNamedArea = await this.prisma.area.findFirst({
+      where: {
+        name: {
+          equals: data.name,
+          mode: 'insensitive',
+        },
+      },
+    });
+    if (existingNamedArea) {
+      throw new ConflictException('Area name already exits');
+    }
     return this.prisma.area.create({ data });
   }
 
-  async findAll() {
-    return this.prisma.area.findMany();
+  async findAll(search?: string) {
+    return this.prisma.area.findMany({
+      where: search
+        ? {
+            name: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          }
+        : undefined,
+      include: {
+        _count: {
+          select: { processes: true },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {

@@ -7,8 +7,8 @@ import { CreateProcessDto } from './dto/create-process.dto';
 import { UpdateProcessDto } from './dto/update-process.dto';
 import { ProcessTreeDto } from './dto/process-tree.dto';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Process } from '@prisma/client';
-import { PaginationDto } from './dto/pagination.dto';
+import { Prisma, Process } from '@prisma/client';
+import { QueryProcessesDto } from './dto/query-processes.dto';
 import { DEFAULT_PAGE_SIZE } from './utils/constants';
 
 @Injectable()
@@ -41,11 +41,63 @@ export class ProcessesService {
     });
   }
 
-  async findAll(paginationDTO: PaginationDto) {
-    return this.prisma.process.findMany({
-      skip: paginationDTO.skip,
-      take: paginationDTO.limit ?? DEFAULT_PAGE_SIZE,
-    });
+  async findAll(query: QueryProcessesDto) {
+    const { search, areaId, skip = 0, limit = DEFAULT_PAGE_SIZE } = query;
+
+    const where: Prisma.ProcessWhereInput = {};
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (areaId) {
+      where.areaId = areaId;
+    }
+
+    const [data, total] = await Promise.all([
+      this.prisma.process.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          area: {
+            select: {
+              id: true,
+              name: true,
+              color: true,
+            },
+          },
+          parent: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          _count: {
+            select: {
+              children: true,
+            },
+          },
+        },
+      }),
+      this.prisma.process.count({ where }),
+    ]);
+
+    return {
+      data,
+      meta: {
+        total,
+        skip,
+        limit,
+        hasMore: skip + data.length < total,
+        page: Math.floor(skip / limit) + 1,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findByArea(areaId: string) {
@@ -81,6 +133,7 @@ export class ProcessesService {
       processMap.set(process.id, {
         id: process.id,
         name: process.name,
+        priority: process.priority,
         description: process.description,
         type: process.type,
         status: process.status,

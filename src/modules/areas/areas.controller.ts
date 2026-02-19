@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { AreasService } from './areas.service';
 import { CreateAreaDto } from './dto/create-area.dto';
@@ -45,8 +46,8 @@ export class AreasController {
     isArray: true,
   })
   @Get()
-  findAll() {
-    return this.areasService.findAll();
+  findAll(@Query('search') search?: string) {
+    return this.areasService.findAll(search);
   }
 
   @ApiOperation({

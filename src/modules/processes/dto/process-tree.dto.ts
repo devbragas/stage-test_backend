@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ProcessType, ProcessStatus } from '@prisma/client';
+import { ProcessType, ProcessStatus, ProcessPriority } from '@prisma/client';
 
 export class ProcessTreeDto {
   @ApiProperty({
@@ -26,6 +26,12 @@ export class ProcessTreeDto {
     description: 'Type of the process',
   })
   type: ProcessType;
+
+  @ApiProperty({
+    enum: ProcessPriority,
+    description: 'The priority of the process',
+  })
+  priority: ProcessPriority;
 
   @ApiProperty({
     enum: ProcessStatus,

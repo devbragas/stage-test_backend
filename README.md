@@ -1,99 +1,149 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Stage Flow – Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend da aplicação de mapeamento e visualização da cadeia de processos organizacionais.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Desenvolvido com NestJS + Prisma + PostgreSQL, seguindo uma arquitetura modular robusta.
 
-## Description
+## 1. Objetivo do Backend
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Fornecer uma API REST responsável por:
 
-## Project setup
+- Gerenciamento de Áreas
+- Gerenciamento de Processos e Subprocessos
+- Estrutura hierárquica de processos
+- Estatísticas por área
+- Paginação e filtros avançados
+- Garantia de integridade relacional
+
+O foco das API's se baseiam nos seguintes aspectos:
+
+- Organização modular
+- Separação clara de responsabilidades
+- Escalabilidade
+- Consistência nas respostas
+- Tratamento adequado de erros
+
+---
+
+## 2. Ferramentas Utilizadas
+
+- NestJS
+- Prisma ORM
+- PostgreSQL
+- Swagger
+- ValidationPipe global
+- Exception Filters globais
+- UUID como identificador primário
+
+---
+
+## 3. Arquitetura do Projeto
+
+Estrutura modular baseada em domínio:
+
+### Separação de Camadas
+
+- Controllers → Camada HTTP
+- Services → Regra de negócio
+- DTOs → Contrato de entrada/saída
+- PrismaService → Acesso ao banco
+- Exception Filters → Tratamento centralizado de erros
+
+## 4. Funcionalidades
+
+### Áreas
+
+- Criar área
+- Listar áreas (com busca por nome)
+- Buscar por ID
+- Atualizar
+- Remover
+- Contagem de processos por área
+- Validação de duplicidade via constraint + filtro Prisma
+
+### Processos
+
+- Criar processo
+- Atualizar processo
+- Remover processo (bloqueado se possuir filhos)
+- Listagem com:
+  - Paginação
+  - Filtro por área
+  - Filtro por nome
+- Busca por ID
+- Listagem por área
+- Estrutura em árvore por área
+- Estatísticas por área:
+  - Total de processos
+  - Processos ativos
+  - Quantidade por tipo
+  - Profundidade máxima
+
+## 5. Documentação das API's
+
+Todos os endpoints podem ser devidamente testados pelo Swagger em:
 
 ```bash
-$ npm install
+http://localhost:3333/api
 ```
 
-## Compile and run the project
+A documentação é gerada automaticamente via decorators do NestJS.
+
+## 6. Como Rodar o Projeto
+
+Clone o repositório:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/devbragas/stage_test-backend.git
+cd stage_test-backend
 ```
 
-## Run tests
+Instale as dependências com o seguinte comando no terminal:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
+### Configuração do Banco de Dados
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Este projeto utiliza PostgreSQL como banco de dados.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+#### Pré-requisitos
+
+- PostgreSQL instalado e rodando localmente
+- Usuário e senha configurados
+
+Antes de rodar as migrations, crie o banco manualmente.
+
+Você pode usar:
+
+- DBeaver
+- PgAdmin
+- Ou o terminal
+
+Exemplo via terminal:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+createdb process_map
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Feito isso, basta criar um arquivo .env na raíz do projeto com a seguinte linha, utilizando a senha de acesso do seu Postgres:
 
-## Resources
+```bash
+DATABASE_URL="postgresql://postgres:suasenha@localhost:5432/process_map?schema=public"
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Depois, execute as migrations e gere o prisma client:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
 
-## Support
+Inicie a aplicação:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run start:dev
+```
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-# stage-test_backend
+A aplicação estará disponível em: [http://localhost:3333](http://localhost:3333) .
