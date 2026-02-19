@@ -35,6 +35,7 @@ model Process {
   children    Process[] @relation("ProcessHierarchy")
 
   type        ProcessType
+  priority    ProcessPriority @default(MEDIA)
   status      ProcessStatus @default(ACTIVE)
 
   responsibles String[] 
@@ -58,3 +59,11 @@ enum ProcessStatus {
   ACTIVE
   INACTIVE
 }
+
+enum ProcessPriority {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+

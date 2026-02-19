@@ -7,7 +7,7 @@ import {
   IsEnum,
   IsArray,
 } from 'class-validator';
-import { ProcessType } from '@prisma/client';
+import { ProcessType, ProcessPriority } from '@prisma/client';
 
 export class CreateProcessDto {
   @ApiProperty({ example: 'Recruitment Flow' })
@@ -22,6 +22,15 @@ export class CreateProcessDto {
   })
   @IsEnum(ProcessType)
   type: ProcessType;
+
+  @ApiProperty({
+    enum: ProcessPriority,
+    example: 'MEDIA',
+    description: 'Priority of the given process (Baixa, Média, Alta, Crítica)',
+  })
+  @IsEnum(ProcessPriority)
+  @IsOptional()
+  priority: ProcessPriority;
 
   @ApiProperty({ required: false })
   @IsOptional()

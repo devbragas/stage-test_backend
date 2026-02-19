@@ -133,6 +133,7 @@ export class ProcessesService {
       processMap.set(process.id, {
         id: process.id,
         name: process.name,
+        priority: process.priority,
         description: process.description,
         type: process.type,
         status: process.status,
